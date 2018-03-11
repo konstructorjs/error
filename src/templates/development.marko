@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Application Error</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.css">
+    <style>
+      pre {
+        white-space: pre;
+      }
+      .display-inline {
+        display: inline;
+      }
+      pre.code div {
+        counter-increment: stack-source;
+      }
+      pre.code div::before {
+        content: counter(stack-source) ".";
+        min-width: 3em;
+        width: auto;
+        display: inline-block;
+      }
+
+      .request-table td {
+        width: 50%;
+      }
+    </style>
+  </head>
+
+  <body>
+    <section class="hero">
+      <div class="hero-body">
+        <div class="container">
+          <h2 class="subtitle">
+            ${input.err.status || 500} @ ${input.ctx.request.method} ${input.ctx.request.path}
+          </h2>
+          <h1 class="title">
+            ${input.err.message || 'internal server error'}
+          </h1>
+        </div>
+      </div>
+    </section>
+    <div id="app">
+      <section class="container">
+        <div class="columns">
+          <div class="column is-half">
+            <div class="subtitle">code</div>
+<pre class="code" v-bind:style="{ 'counter-reset': getStartLine(stackTrace[currentStackTrace]) }"><code><div class="display-inline" v-for="(line, index) in stackTrace[currentStackTrace].source.pre">{{ line }}<br v-if="index !== stackTrace[currentStackTrace].source.pre.length - 1"></div>
+<div class="has-text-danger display-inline">{{ stackTrace[currentStackTrace].source.line }}</div>
+<div class="display-inline" v-for="(line, index) in stackTrace[currentStackTrace].source.post">{{ line }}<br v-if="index !== stackTrace[currentStackTrace].source.post.length - 1"></div></code></pre>
+          </div>
+          <div class="column is-half">
+            <div class="subtitle">stack trace</div>
+            <aside class="menu">
+            <ul class="menu-list">
+            <li v-for="stack in stackTrace"><a v-bind:class="{ 'is-active': (stack.id === currentStackTrace) }" v-on:click="selectStackTrace(stack.id)">{{ stack.file }}</a></li>
+            </ul>
+            </aside>
+          </div>
+        </div>
+      </section>
+      <section class="container">
+        <div class="columns">
+          <div class="column">
+            <div class="subtitle">error</div>
+<pre><code>${input.err.stack}</code></pre>
+          </div>
+          <div class="column">
+            <div class="subtitle">request</div>
+            <table class="table is-bordered is-hoverable is-fullwidth is-striped request-table">
+              <tbody>
+                <tr>
+                  <td>Method</td>
+                  <td>${input.ctx.request.method || 'GET'}</td>
+                </tr>
+                <tr>
+                  <td>URL</td>
+                  <td>${input.ctx.request.url || 'N/A'}</td>
+                </tr>
+                <tr>
+                  <td>Host</td>
+                  <td>${input.ctx.request.header.host || 'N/A'}</td>
+                </tr>
+                <tr>
+                  <td>User Agent</td>
+                  <td>${input.ctx.request.header['user-agent'] || 'N/A'}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+      <section class="container">
+        <div class="columns">
+        </div>
+      </section>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.13/vue.js"></script>
+    <script>
+      new Vue({
+        el: '#app',
+        data: {
+          stackTrace: {},
+          currentStackTrace: 0,
+        },
+        created () {
+          this.stackTrace = ${JSON.stringify(input.stackTrace)};
+          let counter = 0;
+          this.stackTrace.forEach((stack) => {
+            stack.id = counter;
+            counter = counter + 1;
+          })
+        },
+        methods: {
+          selectStackTrace(id) {
+            this.currentStackTrace = id;
+          },
+          getStartLine(obj) {
+            const sum = obj.line - obj.source.pre.length - 1;
+            return 'stack-source ' + sum;
+          }
+        }
+      })
+    </script>
+  </body>
+</html>
