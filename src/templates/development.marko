@@ -13,21 +13,20 @@
       pre {
         white-space: pre;
       }
+      
       .display-inline {
         display: inline;
       }
+      
       pre.code div {
         counter-increment: stack-source;
       }
+
       pre.code div::before {
         content: counter(stack-source) ".";
         min-width: 3em;
         width: auto;
         display: inline-block;
-      }
-
-      .request-table td {
-        width: 50%;
       }
     </style>
   </head>
@@ -66,11 +65,11 @@
       </section>
       <section class="container">
         <div class="columns">
-          <div class="column">
+          <div class="column is-three-quarters">
             <div class="subtitle">error</div>
 <pre><code>${input.err.stack}</code></pre>
           </div>
-          <div class="column">
+          <div class="column is-one-quarter">
             <div class="subtitle">request</div>
             <table class="table is-bordered is-hoverable is-fullwidth is-striped request-table">
               <tbody>
@@ -93,10 +92,6 @@
               </tbody>
             </table>
           </div>
-        </div>
-      </section>
-      <section class="container">
-        <div class="columns">
         </div>
       </section>
     </div>

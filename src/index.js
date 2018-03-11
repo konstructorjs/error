@@ -38,17 +38,21 @@ module.exports = class error {
             const bulma = path.join(__dirname, './assets/bulma.css');
             const vue = path.join(__dirname, './assets/vue.min.js');
             const template = require(path.join(__dirname, './templates/development.marko'));
-            const callsites = await getCallsites(err);
             const stackTrace = [];
             const currentDirectory = process.cwd();
-            for (const callsite of callsites) {
-              const lineNumber = callsite.getLineNumber();
-              const source = await getCallsiteSource(callsite);
-              stackTrace.push({
-                file: path.relative(currentDirectory, callsite.getFileName()),
-                line: lineNumber,
-                source,
-              });
+            try {
+              const callsites = await getCallsites(err);
+              for (const callsite of callsites) {
+                const lineNumber = callsite.getLineNumber();
+                const source = await getCallsiteSource(callsite);
+                stackTrace.push({
+                  file: path.relative(currentDirectory, callsite.getFileName()),
+                  line: lineNumber,
+                  source,
+                });
+              }
+            } catch (callsiteError) {
+              // do nothing
             }
             ctx.type = 'html';
             ctx.body = template.stream({
