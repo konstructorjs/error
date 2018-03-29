@@ -7,6 +7,9 @@ require('marko/node-require').install({
 const chalk = require('chalk');
 const stackman = require('stackman')();
 const path = require('path');
+const fs = require('fs');
+
+const currentDirectory = process.cwd();
 
 const getCallsites = err => new Promise((resolve, reject) => {
   stackman.callsites(err, (error, callsites) => {
@@ -27,7 +30,12 @@ const getCallsiteSource = callsite => new Promise((resolve, reject) => {
 });
 
 module.exports = class error {
-  static setup(app) {
+  constructor(options = {}) {
+    this.sourceDir = (typeof options.sourceDir === 'string') ? options.sourceDir : './src';
+    this.errorTemplatePath = (typeof options.errorTemplatePath === 'string') ? options.errorTemplatePath : './application/error.marko';
+  }
+
+  setup(app) {
     app.use(async (ctx, next) => {
       try {
         await next();
@@ -39,7 +47,6 @@ module.exports = class error {
             const vue = path.join(__dirname, './assets/vue.min.js');
             const template = require(path.join(__dirname, './templates/development.marko'));
             const stackTrace = [];
-            const currentDirectory = process.cwd();
             try {
               const callsites = await getCallsites(err);
               for (const callsite of callsites) {
@@ -61,6 +68,24 @@ module.exports = class error {
               err,
               ctx,
               stackTrace,
+            });
+          } catch (templateError) {
+            console.log(templateError);
+          }
+        } else if (fs.existsSync(path.join(
+          currentDirectory,
+          this.sourceDir,
+          this.errorTemplatePath,
+        ))) {
+          try {
+            const template = require(path.join(
+              currentDirectory,
+              this.sourceDir,
+              this.errorTemplatePath,
+            ));
+            ctx.type = 'html';
+            ctx.body = template.stream({
+              err,
             });
           } catch (templateError) {
             console.log(templateError);
