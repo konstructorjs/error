@@ -1,6 +1,6 @@
 {
   "name": "@konstructor/error",
-  "version": "0.0.0",
+  "version": "0.0.0-development",
   "description": "error wrapper for konstructor",
   "main": "lib",
   "scripts": {
@@ -8,14 +8,16 @@
     "prepublish": "npm run compile",
     "compile": "babel --out-dir lib/ --copy-files src/",
     "test": "npm run lint",
-    "lint": "eslint *.js src/* --ignore-pattern *.min.js"
+    "lint": "eslint *.js src/* --ignore-pattern *.min.js",
+    "travis-deploy-once": "travis-deploy-once",
+    "semantic-release": "semantic-release"
   },
   "files": [
     "lib"
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/konstructorjs/error.git"
+    "url": "https://github.com/konstructorjs/error.git"
   },
   "keywords": [
     "konstructor",
@@ -38,10 +40,15 @@
     "babel-preset-env": "^1.6.1",
     "eslint": "^4.18.2",
     "eslint-config-airbnb-base": "^12.1.0",
-    "eslint-plugin-import": "^2.9.0"
+    "eslint-plugin-import": "^2.9.0",
+    "travis-deploy-once": "^4.4.1",
+    "semantic-release": "^15.1.5"
   },
   "engines": {
     "node": ">=8",
     "npm": ">=5"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
