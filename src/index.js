@@ -39,6 +39,11 @@ module.exports = class error {
     app.use(async (ctx, next) => {
       try {
         await next();
+        if (ctx.status === 404) {
+          const err = new Error('not found');
+          err.status = 404;
+          throw err;
+        }
       } catch (err) {
         ctx.status = err.status || 500;
         if (app.env === 'development') {
@@ -62,13 +67,15 @@ module.exports = class error {
               // do nothing
             }
             ctx.type = 'html';
-            ctx.body = template.stream({
+            const data = {
               bulma,
               vue,
               err,
               ctx,
               stackTrace,
-            });
+            };
+            const injectedData = Object.assign({}, ctx.state, data);
+            ctx.body = template.stream(injectedData);
           } catch (templateError) {
             console.log(templateError);
           }
@@ -84,9 +91,11 @@ module.exports = class error {
               this.errorTemplatePath,
             ));
             ctx.type = 'html';
-            ctx.body = template.stream({
+            const data = {
               err,
-            });
+            };
+            const injectedData = Object.assign({}, ctx.state, data);
+            ctx.body = template.stream(injectedData);
           } catch (templateError) {
             console.log(templateError);
           }
